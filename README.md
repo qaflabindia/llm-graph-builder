@@ -8,6 +8,15 @@ Transform unstructured data (PDFs, DOCs, TXTs, YouTube videos, web pages, etc.) 
 
 This application allows you to upload files from various sources (local machine, GCS, S3 bucket, or web sources), choose your preferred LLM model, and generate a Knowledge Graph.
 
+## What's New (Feb 2026)
+- **Universal LLM Support**: Fixed configuration handling for **Diffbot**, **Anthropic**, **Fireworks**, and generic OpenAI-compatible models. Fallback logic now correctly uses API keys from the Secret Vault.
+- **OpenAI Compatibility**: Resolved model name resolution issues (e.g., fixing `openai.gpt.4o` 404 errors by mapping correctly to `gpt-4o`).
+- **UI Enhancements**:
+    - **Saffron Theme**: Updated the application theme to a vibrant Saffron / Fluorescent Orange (`#FF3500`) for better visibility.
+    - **Clean Header**: Simplified the header menu by removing unused links.
+    - **Smart Dropdown**: Model selection now correctly updates for previously "Failed" files, allowing easy retries.
+- **Security**: enhanced handling of secret vault files (`.vault.key`, `.secrets.json.enc`), ensuring they are persisted locally but excluded from git version control.
+
 ## Getting Started
 
 ### **Prerequisites**
