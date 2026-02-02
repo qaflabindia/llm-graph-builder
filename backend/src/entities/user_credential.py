@@ -25,6 +25,23 @@ class Neo4jCredentials(BaseModel):
         """Pydantic configuration"""
         str_strip_whitespace = True  # Automatically strip whitespace from strings
 
+    @validator('uri', pre=True, always=True)
+    def validate_uri(cls, v):
+        """Validate and fix URI format"""
+        if v:
+            if isinstance(v, str):
+                v = v.lower()
+                if 'localhost' in v or '127.0.0.1' in v:
+                    v = v.replace('localhost', 'neo4j').replace('127.0.0.1', 'neo4j')
+                
+                # Ensure protocol is present
+                if not (v.startswith('bolt://') or 
+                        v.startswith('neo4j://') or 
+                        v.startswith('bolt+s://') or 
+                        v.startswith('neo4j+s://')):
+                    v = f"bolt://{v}"
+        return v
+
 
 async def get_neo4j_credentials(
     uri: Optional[str] = Form(None),

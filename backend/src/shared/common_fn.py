@@ -22,6 +22,7 @@ import time
 from pathlib import Path
 from urllib.parse import urlparse
 import boto3
+from src.shared.secret_vault import get_secret
 from langchain_community.embeddings import BedrockEmbeddings
 from langchain_core.callbacks import BaseCallbackHandler
 
@@ -121,7 +122,8 @@ def create_graph_database_connection(credentials):
 
 def load_embedding_model(embedding_model_name: str):
     if embedding_model_name == "openai":
-        embeddings = OpenAIEmbeddings()
+        openai_api_key = get_value_from_env("OPENAI_API_KEY")
+        embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
         dimension = 1536
         logging.info(f"Embedding: Using OpenAI Embeddings , Dimension:{dimension}")
     elif embedding_model_name == "vertexai":        
@@ -255,13 +257,19 @@ def get_bedrock_embeddings():
    
 def get_value_from_env(key_name: str, default_value: Any = None, data_type: type = str):
   
-  value = os.getenv(key_name, None)
-  if value is not None:
+  # First check the secret vault
+  value = get_secret(key_name)
+  
+  # Then check environment variables
+  if value is None:
+    value = os.getenv(key_name, None)
+    
+  if value is not None and str(value).strip() != "":
     return convert_type(value, data_type)
   elif default_value is not None:
     return convert_type(default_value, data_type)
   else:
-    error_msg = f"Environment variable '{key_name}' not found and no default value provided."
+    error_msg = f"Environment variable or secret '{key_name}' not found and no default value provided."
     logging.error(error_msg)
     return None
 
@@ -342,14 +350,15 @@ def track_token_usage(
         if not normalized_email and not normalized_db_url:
             raise ValueError("Either email or db_url must be provided for token tracking.")
 
-        uri = get_value_from_env("TOKEN_TRACKER_DB_URI")
-        user = get_value_from_env("TOKEN_TRACKER_DB_USERNAME")
-        password = get_value_from_env("TOKEN_TRACKER_DB_PASSWORD")
-        database = get_value_from_env("TOKEN_TRACKER_DB_DATABASE", "neo4j")
-        credentials= Neo4jCredentials(uri=uri, userName=user, password=password, database=database)
+        uri = get_value_from_env("TOKEN_TRACKER_DB_URI") or get_value_from_env("NEO4J_URI")
+        user = get_value_from_env("TOKEN_TRACKER_DB_USERNAME") or get_value_from_env("NEO4J_USERNAME")
+        password = get_value_from_env("TOKEN_TRACKER_DB_PASSWORD") or get_value_from_env("NEO4J_PASSWORD")
+        database = get_value_from_env("TOKEN_TRACKER_DB_DATABASE") or get_value_from_env("NEO4J_DATABASE") or "neo4j"
         if not all([uri, user, password]):
-            raise EnvironmentError("Neo4j credentials are not set properly.")
-
+            logging.warning("Neo4j credentials are not set. Skipping token usage tracking.")
+            return 0
+            
+        credentials = Neo4jCredentials(uri=uri, userName=user, password=password, database=database)
         graph = create_graph_database_connection(credentials)
         daily_tokens_limit = get_value_from_env("DAILY_TOKENS_LIMIT", "250000", "int")
         monthly_tokens_limit = get_value_from_env("MONTHLY_TOKENS_LIMIT", "1000000", "int")
@@ -462,13 +471,21 @@ def get_remaining_token_limits(email: str, uri: str) -> dict:
         if not normalized_email and not normalized_db_url:
             raise ValueError("Either email or db_url must be provided for token tracking.")
 
-        neo4j_uri = os.getenv("TOKEN_TRACKER_DB_URI")
-        user = os.getenv("TOKEN_TRACKER_DB_USERNAME")
-        password = os.getenv("TOKEN_TRACKER_DB_PASSWORD")
-        database = os.getenv("TOKEN_TRACKER_DB_DATABASE", "neo4j")
+        neo4j_uri = os.getenv("TOKEN_TRACKER_DB_URI") or get_value_from_env("NEO4J_URI")
+        user = os.getenv("TOKEN_TRACKER_DB_USERNAME") or get_value_from_env("NEO4J_USERNAME")
+        password = os.getenv("TOKEN_TRACKER_DB_PASSWORD") or get_value_from_env("NEO4J_PASSWORD")
+        database = os.getenv("TOKEN_TRACKER_DB_DATABASE") or get_value_from_env("NEO4J_DATABASE") or "neo4j"
         if not all([neo4j_uri, user, password]):
-            raise EnvironmentError("Neo4j credentials are not set properly.")
-
+            logging.warning("Neo4j credentials are not set. Returning default token limits.")
+            return {
+                "daily_remaining": 250000,
+                "monthly_remaining": 1000000,
+                "daily_limit": 250000,
+                "monthly_limit": 1000000,
+                "daily_used": 0,
+                "monthly_used": 0,
+            }
+        
         credentials= Neo4jCredentials(uri=neo4j_uri, userName=user, password=password, database=database)
         graph = create_graph_database_connection(credentials)
 

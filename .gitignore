@@ -175,3 +175,7 @@ files
 startupbackend.sh
 startupfrontend.sh
 /backend/local_model
+.vault.key
+.secrets.json.enc
+*.key
+*.enc

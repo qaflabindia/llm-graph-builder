@@ -5,16 +5,16 @@ EXPOSE 8000
 # Install dependencies and clean up in one layer
 RUN apt-get update && \
    apt-get install -y --no-install-recommends \
-       libmagic1 \
-       libgl1 \
-       libglib2.0-0 \
-       libglx-mesa0 \
-       libgomp1 \
-       libreoffice \
-       cmake \
-       poppler-utils \
-       tesseract-ocr \
-       git && \
+   libmagic1 \
+   libgl1 \
+   libglib2.0-0 \
+   libglx-mesa0 \
+   libgomp1 \
+   libreoffice \
+   cmake \
+   poppler-utils \
+   tesseract-ocr \
+   git && \
    apt-get clean && \
    rm -rf /var/lib/apt/lists/*
 
@@ -24,7 +24,7 @@ ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 COPY requirements.txt constraints.txt /code/
 # --no-cache-dir --upgrade 
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt -c constraints.txt
+RUN pip install -r requirements.txt
 
 RUN python -c "from transformers import AutoTokenizer, AutoModel; \
    name='sentence-transformers/all-MiniLM-L6-v2'; \

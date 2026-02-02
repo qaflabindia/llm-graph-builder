@@ -1,8 +1,10 @@
 @import 'tailwindcss';
+@import './theme-overrides.css';
 
 @config '../tailwind.config.js';
 
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -16,6 +18,6 @@ body {
   margin: 0;
 }
 
-.ndl-progress-bar-wrapper .ndl-header .ndl-heading::after{
+.ndl-progress-bar-wrapper .ndl-header .ndl-heading::after {
   animation: none !important;
 }

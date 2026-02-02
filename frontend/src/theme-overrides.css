@@ -1,0 +1,100 @@
+/* Custom Dark Theme Overrides with Gradients */
+.ndl-theme-dark {
+  /* Backgrounds & Glassmorphism */
+  --theme-palette-neutral-bg-default: rgba(0, 0, 0, 0.85) !important;
+  --theme-palette-neutral-bg-weak: rgba(10, 10, 10, 0.75) !important;
+  --theme-palette-neutral-bg-strong: rgba(20, 20, 20, 0.85) !important;
+
+  /* Gradient variables */
+  --slim-gradient: linear-gradient(90deg, #FF0000 0%, #FF7E00 25%, #FFBF00 50%, #FFFF00 75%, #FFD700 100%);
+  --gold-gradient: linear-gradient(135deg, #FFD700 0%, #FFBF00 100%);
+
+  backdrop-filter: blur(14px);
+}
+
+.ndl-theme-dark body,
+.ndl-theme-dark .layout-wrapper,
+.ndl-theme-dark .ndl-modal,
+.ndl-theme-dark .ndl-drawer,
+.ndl-theme-dark .ndl-dialog {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  /* Gradient border using border-image */
+  border: 1px solid transparent !important;
+  border-image: var(--slim-gradient) 1 !important;
+}
+
+/* Typography (Saffron / Fluorescent Orange "pop") */
+.ndl-theme-dark {
+  --theme-palette-primary-text: #FF3500 !important;
+  /* User Requested Saffron */
+  --theme-palette-neutral-text-default: #FF3500 !important;
+  --theme-palette-neutral-text-strong: #FF3500 !important;
+  --theme-palette-neutral-text-weak: #FF8855 !important;
+  /* Lighter/Softer version */
+  /* Amber for secondary */
+}
+
+.ndl-theme-dark h1,
+.ndl-theme-dark h2,
+.ndl-theme-dark h3,
+.ndl-theme-dark h4,
+.ndl-theme-dark h5,
+.ndl-theme-dark h6,
+.ndl-theme-dark p,
+.ndl-theme-dark span:not(.ndl-icon),
+.ndl-theme-dark div:not(.ndl-icon) {
+  color: #FF3500;
+}
+
+/* Gradient accents for headers and separators */
+.ndl-theme-dark header::after,
+.ndl-theme-dark .ndl-header::after {
+  content: '';
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: var(--slim-gradient);
+}
+
+/* Action Buttons with Gradient */
+.ndl-theme-dark .ndl-button-primary,
+.ndl-theme-dark button[class*="primary"] {
+  background: var(--gold-gradient) !important;
+  color: #000000 !important;
+  border: none !important;
+  font-weight: bold !important;
+  transition: opacity 0.2s;
+}
+
+.ndl-theme-dark .ndl-button-primary:hover {
+  opacity: 0.9;
+}
+
+/* Selection and Highlighting */
+.ndl-theme-dark ::selection {
+  background: #FF7E00;
+  color: white;
+}
+
+/* Grid/Table overrides */
+.ndl-theme-dark .ndl-data-grid,
+.ndl-theme-dark .ndl-table {
+  border-image: var(--slim-gradient) 1 !important;
+}
+
+.ndl-theme-dark .ndl-data-grid-header,
+.ndl-theme-dark .ndl-table-header {
+  color: #FFBF00 !important;
+  border-bottom: 2px solid transparent !important;
+  border-image: var(--slim-gradient) 1 !important;
+  background-color: rgba(10, 10, 10, 0.95) !important;
+}
+
+/* Icons adjusted to Gold/Amber */
+.ndl-theme-dark .ndl-icon,
+.ndl-theme-dark svg:not(.ndl-logo) {
+  fill: #FFD700 !important;
+  color: #FFD700 !important;
+}

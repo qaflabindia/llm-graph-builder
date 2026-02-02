@@ -42,6 +42,7 @@ from src.neighbours import get_neighbour_nodes
 from src.post_processing import create_entity_embedding, create_vector_fulltext_indexes, graph_schema_consolidation
 from src.ragas_eval import get_additional_metrics, get_ragas_metrics
 from src.shared.common_fn import formatted_time, get_value_from_env, get_remaining_token_limits
+from src.shared.secret_vault import get_secret, set_secret, list_secret_keys
 from src.shared.llm_graph_builder_exception import LLMGraphBuilderException
 from Secweb.XContentTypeOptions import XContentTypeOptions
 from Secweb.XFrameOptions import XFrame
@@ -130,6 +131,42 @@ app.add_middleware(
 )
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
 app.add_api_route("/health", health([healthy_condition, healthy]))
+
+
+@app.get("/secrets")
+async def get_secrets_list():
+    """Get the list of secret keys stored in the vault."""
+    try:
+        keys = list_secret_keys()
+        return create_api_response("Success", data=keys)
+    except Exception as e:
+        return create_api_response("Failed", error=str(e))
+
+@app.get("/secrets/values")
+async def get_secret_value(name: str):
+    """Get the value of a secret from the vault."""
+    try:
+        value = get_secret(name)
+        if value is None:
+            return create_api_response("Failed", message=f"Secret {name} not found")
+        return create_api_response("Success", data=value)
+    except Exception as e:
+        return create_api_response("Failed", error=str(e))
+
+
+@app.post("/secrets")
+async def save_secret(request: Request):
+    """Save a secret to the vault."""
+    try:
+        data = await request.json()
+        name = data.get("name")
+        value = data.get("value")
+        if not name or not value:
+            return create_api_response("Failed", message="Name and value are required")
+        set_secret(name, value)
+        return create_api_response("Success", message=f"Secret {name} saved successfully")
+    except Exception as e:
+        return create_api_response("Failed", error=str(e))
 
 
 @app.post("/url/scan")
@@ -527,9 +564,31 @@ async def connect(credentials: Neo4jCredentials = Depends(get_neo4j_credentials)
     """Connect to the Neo4j database and check vector dimensions."""
     try:
         start = time.time()
+        
+        # Internal fix: If uri is localhost or 127.0.0.1, we try to use 'neo4j' 
+        # which is the service name in docker-compose.
+        if credentials.uri:
+            uri = credentials.uri.lower()
+            if 'localhost' in uri or '127.0.0.1' in uri:
+                # We only replace if we are running in docker (best guess)
+                # For now, let's just do it if it's literally localhost
+                new_uri = credentials.uri.replace('localhost', 'neo4j').replace('127.0.0.1', 'neo4j')
+                logging.info(f"Mapping {credentials.uri} to {new_uri} for Docker-side connection")
+                credentials.uri = new_uri
+            
+            # Ensure protocol is present for Neo4jGraph
+            if not (credentials.uri.startswith('bolt://') or 
+                    credentials.uri.startswith('neo4j://') or 
+                    credentials.uri.startswith('bolt+s://') or 
+                    credentials.uri.startswith('neo4j+s://')):
+                credentials.uri = f"bolt://{credentials.uri}"
+        
+        logging.info(f"Final URI for connection attempt: {credentials.uri}")
         graph = create_graph_database_connection(credentials)
         
+        logging.info(f"Connection created, checking dimensions for database: {credentials.database}")
         result = await asyncio.to_thread(connection_check_and_get_vector_dimensions, graph, credentials.database)
+        logging.info(f"Dimensions check result: {result}")
         gcs_cache = get_value_from_env("GCS_FILE_CACHE","False","bool")
         end = time.time()
         elapsed_time = end - start
@@ -1062,7 +1121,16 @@ async def backend_connection_configuration():
             logging.info(f'login connection status of object: {graph}')
             if graph is not None:
                 graph_connection = True        
-                result = await asyncio.to_thread(connection_check_and_get_vector_dimensions, graph, database)
+                # Create a temporary credentials object for logging and connection
+                temp_credentials = Neo4jCredentials(uri=uri, userName=username, password=password, database=database)
+                
+                logging.info(f"Final URI for connection attempt: {temp_credentials.uri}")
+                graph = create_graph_database_connection(temp_credentials)
+                
+                logging.info(f"Connection created, checking dimensions for database: {temp_credentials.database}")
+                result = await asyncio.to_thread(connection_check_and_get_vector_dimensions, graph, temp_credentials.database)
+                logging.info(f"Dimensions check result: {result}")
+
                 result['gcs_file_cache'] = gcs_cache
                 result['uri'] = uri
                 end = time.time()

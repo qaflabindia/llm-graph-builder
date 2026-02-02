@@ -184,8 +184,8 @@ const Content: React.FC<ContentProps> = ({
               : postProcessingTasks
             : hasSelections
               ? postProcessingTasks.filter(
-                  (task) => task !== 'graph_schema_consolidation' && task !== 'enable_communities'
-                )
+                (task) => task !== 'graph_schema_consolidation' && task !== 'enable_communities'
+              )
               : postProcessingTasks.filter((task) => task !== 'enable_communities');
           if (payload.length) {
             const response = await postProcessing(payload);
@@ -250,7 +250,7 @@ const Content: React.FC<ContentProps> = ({
         return {
           ...curfile,
           model:
-            curfile.status === 'New' || curfile.status === 'Ready to Reprocess'
+            curfile.status === 'New' || curfile.status === 'Ready to Reprocess' || curfile.status === 'Failed'
               ? (selectedOption?.value ?? '')
               : curfile.model,
         };
@@ -592,9 +592,8 @@ const Content: React.FC<ContentProps> = ({
     let finalUrl = bloomUrl;
     if (userCredentials?.database && userCredentials.uri && userCredentials.userName) {
       const uriCoded = userCredentials.uri.replace(/:\d+$/, '');
-      const connectURL = `${uriCoded.split('//')[0]}//${userCredentials.userName}@${uriCoded.split('//')[1]}:${
-        userCredentials.port ?? '7687'
-      }`;
+      const connectURL = `${uriCoded.split('//')[0]}//${userCredentials.userName}@${uriCoded.split('//')[1]}:${userCredentials.port ?? '7687'
+        }`;
       const encodedURL = encodeURIComponent(connectURL);
       finalUrl = bloomUrl?.replace('{CONNECT_URL}', encodedURL);
     }
@@ -635,7 +634,7 @@ const Content: React.FC<ContentProps> = ({
         modes: {
           'graph+vector+fulltext': {
             message:
-              ' Welcome to the Neo4j Knowledge Graph Chat. You can ask questions related to documents which have been completely processed.',
+              ' Welcome to the DB Knowledge Graph Chat. You can ask questions related to documents which have been completely processed.',
           },
         },
         user: 'chatbot',
@@ -665,12 +664,12 @@ const Content: React.FC<ContentProps> = ({
           return prev.map((f) => {
             return f.name === filename
               ? {
-                  ...f,
-                  status: 'Ready to Reprocess',
-                  processingProgress: isStartFromBeginning ? 0 : f.processingProgress,
-                  nodesCount: isStartFromBeginning ? 0 : f.nodesCount,
-                  relationshipsCount: isStartFromBeginning ? 0 : f.relationshipsCount,
-                }
+                ...f,
+                status: 'Ready to Reprocess',
+                processingProgress: isStartFromBeginning ? 0 : f.processingProgress,
+                nodesCount: isStartFromBeginning ? 0 : f.nodesCount,
+                relationshipsCount: isStartFromBeginning ? 0 : f.relationshipsCount,
+              }
               : f;
           });
         });
@@ -923,7 +922,7 @@ const Content: React.FC<ContentProps> = ({
           flexWrap='wrap'
         >
           <div className='connectionstatus__container'>
-            <span className='h6 px-1'>Neo4j connection {isReadOnlyUser ? '(Read only Mode)' : ''}</span>
+            <span className='h6 px-1'>DB connection {isReadOnlyUser ? '(Read only Mode)' : ''}</span>
             <Typography variant='body-medium'>
               <DatabaseStatusIcon
                 isConnected={connectionStatus}
@@ -970,7 +969,7 @@ const Content: React.FC<ContentProps> = ({
                   className='mr-2!'
                   onClick={() => setOpenConnection((prev) => ({ ...prev, openPopUp: true }))}
                 >
-                  {buttonCaptions.connectToNeo4j}
+                  {buttonCaptions.connectToDB}
                 </Button>
               </SpotlightTarget>
             ) : (
@@ -1067,9 +1066,8 @@ const Content: React.FC<ContentProps> = ({
                   </span>
                 </Button>
                 <div
-                  className={`ndl-icon-btn ndl-clean dropdownbtn ${colorMode === 'dark' ? 'darktheme' : ''} ${
-                    isTablet ? 'small' : 'medium'
-                  }`}
+                  className={`ndl-icon-btn ndl-clean dropdownbtn ${colorMode === 'dark' ? 'darktheme' : ''} ${isTablet ? 'small' : 'medium'
+                    }`}
                   onClick={(e) => {
                     setIsGraphBtnMenuOpen((old) => !old);
                     e.stopPropagation();
@@ -1097,7 +1095,7 @@ const Content: React.FC<ContentProps> = ({
               >
                 <Menu.Item title='Graph Schema' onClick={handleSchemaView} isDisabled={!connectionStatus} />
                 <Menu.Item
-                  title='Explore Graph in Neo4j'
+                  title='Explore Graph in DB'
                   onClick={handleOpenGraphClick}
                   isDisabled={!filesData.some((f) => f?.status === 'Completed')}
                 />

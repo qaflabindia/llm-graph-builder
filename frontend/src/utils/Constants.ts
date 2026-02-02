@@ -12,22 +12,22 @@ export const llms =
   import.meta.env?.VITE_LLM_MODELS?.trim() != ''
     ? (import.meta.env.VITE_LLM_MODELS?.split(',') as string[])
     : [
-        'gemini_2.5_flash',
-        'openai_gpt_5.2',
-        'openai_gpt_5_mini',
-        'gemini_2.5_pro',
-        'diffbot',
-        'groq_llama3.1_8b',
-        'anthropic_claude_4.5_sonnet',
-        'anthropic_claude_4.5_haiku',
-        'llama4_maverick',
-        'bedrock_nova_micro_v1',
-        'bedrock_nova_lite_v1',
-        'bedrock_nova_pro_v1',
-        'fireworks_deepseek_v3',
-        'fireworks_qwen3_30b',
-        'fireworks_gpt_oss',
-      ];
+      'gemini_2.5_flash',
+      'openai_gpt_5.2',
+      'openai_gpt_5_mini',
+      'gemini_2.5_pro',
+      'diffbot',
+      'groq_llama3.1_8b',
+      'anthropic_claude_4.5_sonnet',
+      'anthropic_claude_4.5_haiku',
+      'llama4_maverick',
+      'bedrock_nova_micro_v1',
+      'bedrock_nova_lite_v1',
+      'bedrock_nova_pro_v1',
+      'fireworks_deepseek_v3',
+      'fireworks_qwen3_30b',
+      'fireworks_gpt_oss',
+    ];
 
 export const prodllms =
   import.meta.env.VITE_LLM_MODELS_PROD?.trim() != ''
@@ -58,40 +58,40 @@ export const chatModeReadableLables: Record<string, string> = {
 };
 export const chatModes = import.meta.env?.VITE_CHAT_MODES?.trim()
   ? import.meta.env.VITE_CHAT_MODES?.split(',').map((mode: string) => ({
-      mode: mode.trim(),
-      description: getDescriptionForChatMode(mode.trim()),
-    }))
+    mode: mode.trim(),
+    description: getDescriptionForChatMode(mode.trim()),
+  }))
   : [
-      {
-        mode: chatModeLables.vector,
-        description: 'Performs semantic similarity search on text chunks using vector indexing.',
-      },
-      {
-        mode: chatModeLables.graph,
-        description: 'Translates text to Cypher queries for precise data retrieval from a graph database.',
-      },
-      {
-        mode: chatModeLables['graph+vector'],
-        description: 'Combines vector indexing and graph connections for contextually enhanced semantic search.',
-      },
-      {
-        mode: chatModeLables.fulltext,
-        description: 'Conducts fast, keyword-based search using full-text indexing on text chunks.',
-      },
-      {
-        mode: chatModeLables['graph+vector+fulltext'],
-        description: 'Integrates vector, graph, and full-text indexing for comprehensive search results.',
-      },
-      {
-        mode: chatModeLables['entity search+vector'],
-        description: 'Uses vector indexing on entity nodes for highly relevant entity-based search.',
-      },
-      {
-        mode: chatModeLables['global search+vector+fulltext'],
-        description:
-          'Use vector and full-text indexing on community nodes to provide accurate, context-aware answers globally.',
-      },
-    ];
+    {
+      mode: chatModeLables.vector,
+      description: 'Performs semantic similarity search on text chunks using vector indexing.',
+    },
+    {
+      mode: chatModeLables.graph,
+      description: 'Translates text to Cypher queries for precise data retrieval from a graph database.',
+    },
+    {
+      mode: chatModeLables['graph+vector'],
+      description: 'Combines vector indexing and graph connections for contextually enhanced semantic search.',
+    },
+    {
+      mode: chatModeLables.fulltext,
+      description: 'Conducts fast, keyword-based search using full-text indexing on text chunks.',
+    },
+    {
+      mode: chatModeLables['graph+vector+fulltext'],
+      description: 'Integrates vector, graph, and full-text indexing for comprehensive search results.',
+    },
+    {
+      mode: chatModeLables['entity search+vector'],
+      description: 'Uses vector indexing on entity nodes for highly relevant entity-based search.',
+    },
+    {
+      mode: chatModeLables['global search+vector+fulltext'],
+      description:
+        'Use vector and full-text indexing on community nodes to provide accurate, context-aware answers globally.',
+    },
+  ];
 
 export const chunkSize = import.meta.env.VITE_CHUNK_SIZE ? Number(import.meta.env.VITE_CHUNK_SIZE) : 1 * 1024 * 1024;
 export const tokenchunkSize = import.meta.env.VITE_TOKENS_PER_CHUNK
@@ -157,7 +157,7 @@ export const buttonCaptions = {
   connect: 'Connect',
   disconnect: 'Disconnect',
   submit: 'Submit',
-  connectToNeo4j: 'Connect to Neo4j',
+  connectToDB: 'Connect to DB',
   cancel: 'Cancel',
   details: 'Details',
   continueSettings: 'Continue',

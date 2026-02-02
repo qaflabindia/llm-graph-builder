@@ -33,7 +33,7 @@ const spotlightsforunauthenticated = [
     target: 'loginbutton',
     children: (
       <>
-        <Spotlight.Header>Login with Neo4j</Spotlight.Header>
+        <Spotlight.Header>Login with DB</Spotlight.Header>
         <Spotlight.Body>Using Google Account or Email Address</Spotlight.Body>
       </>
     ),
@@ -42,8 +42,8 @@ const spotlightsforunauthenticated = [
     target: 'connectbutton',
     children: (
       <>
-        <Spotlight.Header>Connect To Neo4j Database</Spotlight.Header>
-        <Spotlight.Body>Fill out the neo4j credentials and click on connect</Spotlight.Body>
+        <Spotlight.Header>Connect To DB Database</Spotlight.Header>
+        <Spotlight.Body>Fill out the DB credentials and click on connect</Spotlight.Body>
       </>
     ),
   },
@@ -96,8 +96,8 @@ const spotlights = [
     target: 'connectbutton',
     children: (
       <>
-        <Spotlight.Header>Connect To Neo4j Database</Spotlight.Header>
-        <Spotlight.Body>Fill out the neo4j credentials and click on connect</Spotlight.Body>
+        <Spotlight.Header>Connect To DB Database</Spotlight.Header>
+        <Spotlight.Body>Fill out the DB credentials and click on connect</Spotlight.Body>
       </>
     ),
   },
@@ -340,7 +340,7 @@ const PageLayout: React.FC = () => {
             modes: {
               'graph+vector+fulltext': {
                 message:
-                  ' Welcome to the Neo4j Knowledge Graph Chat. You can ask questions related to documents which have been completely processed.',
+                  ' Welcome to the DB Knowledge Graph Chat. You can ask questions related to documents which have been completely processed.',
               },
             },
             user: 'chatbot',
@@ -627,9 +627,8 @@ const PageLayout: React.FC = () => {
       ></DataImporterSchemaDialog>
       {isLargeDesktop ? (
         <div
-          className={`layout-wrapper ${!isLeftExpanded ? 'drawerdropzoneclosed' : ''} ${
-            !isRightExpanded ? 'drawerchatbotclosed' : ''
-          } ${!isRightExpanded && !isLeftExpanded ? 'drawerclosed' : ''}`}
+          className={`layout-wrapper ${!isLeftExpanded ? 'drawerdropzoneclosed' : ''} ${!isRightExpanded ? 'drawerchatbotclosed' : ''
+            } ${!isRightExpanded && !isLeftExpanded ? 'drawerclosed' : ''}`}
         >
           <SideNav
             toggles3Modal={toggleS3Modal}

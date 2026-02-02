@@ -25,6 +25,58 @@ def get_llm(model: str):
     model = model.upper().replace('.', '_').strip()
     env_key = f"LLM_MODEL_CONFIG_{model}"
     env_value = get_value_from_env(env_key)
+    
+    # DEBUG LOGGING
+    logging.info(f"DEBUG: get_llm called with model='{model}'")
+    logging.info(f"DEBUG: env_key='{env_key}', initial env_value found: {bool(env_value)}")
+    if "DIFFBOT" in model:
+        diffbot_key = get_value_from_env("DIFFBOT_API_KEY")
+        logging.info(f"DEBUG: DIFFBOT_API_KEY retrieval result: {diffbot_key[:5] if diffbot_key else 'None'}...")
+    # END DEBUG LOGGING
+
+    if not env_value:
+        # Generic fallback: Construct config from specific API keys if main config is missing
+        if "OPENAI" in model:
+            api_key = get_value_from_env("OPENAI_API_KEY")
+            if api_key:
+                # Format model name: OPENAI_GPT_4O -> gpt-4o, OPENAI_GPT_3_5 -> gpt-3.5-turbo
+                formatted_model = model.lower().replace("openai_", "").replace("_", "-")
+                if formatted_model == "gpt-3-5":
+                    formatted_model = "gpt-3.5-turbo"
+                env_value = f"{formatted_model},{api_key}"
+            elif "AZURE" not in model: # Default to gpt-4o if no specific model requested and just key present
+                 env_value = f"gpt-4o,{api_key}"
+
+        elif "DIFFBOT" in model:
+            api_key = get_value_from_env("DIFFBOT_API_KEY")
+            if api_key:
+                env_value = f"diffbot,{api_key}"
+
+        elif "GEMINI" in model:
+            # Gemini often just needs the model name if auth is via separate Google creds, 
+            # but usually users provide GOOGLE_API_KEY. The code expects just "model_name".
+            # We'll default to gemini-pro if not set.
+            env_value = "gemini-1.5-pro-001" 
+
+        elif "ANTHROPIC" in model:
+            api_key = get_value_from_env("ANTHROPIC_API_KEY")
+            if api_key:
+                env_value = f"{model.lower().replace('_', '.')},{api_key}"
+        
+        elif "FIREWORKS" in model:
+            api_key = get_value_from_env("FIREWORKS_API_KEY")
+            if api_key:
+                 env_value = f"accounts/fireworks/models/{model.lower().replace('_', '.')},{api_key}"
+
+        elif "GROQ" in model:
+             api_key = get_value_from_env("GROQ_API_KEY")
+             if api_key:
+                 # Default base URL for Groq? Code expects model,base_url,key.
+                 # We might not be able to fully automate Groq without a known base URL.
+                 pass
+
+        if env_value:
+             logging.info(f"Using fallback config for {model} with discovered API Key")
 
     if not env_value:
         err = f"Environment variable '{env_key}' is not defined as per format or missing"

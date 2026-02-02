@@ -20,6 +20,9 @@ export const createDefaultFormData = (userCredentials: UserCredentials) => {
   // Add interceptor to automatically inject credentials into all requests
   api.interceptors.request.use(
     (config) => {
+      if (config.url?.includes('secrets')) {
+        return config;
+      }
       if (globalCredentials && config.data instanceof FormData) {
         // Add credentials to FormData if not already present
         if (globalCredentials.uri && !config.data.has('uri')) {
